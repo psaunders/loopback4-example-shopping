@@ -3,22 +3,21 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {repository} from '@loopback/repository';
-import {post, param, get, requestBody} from '@loopback/rest';
-import {User, Product} from '../models';
-import {UserRepository} from '../repositories';
-import {RecommenderService} from '../services/recommender.service';
-import {inject, Setter} from '@loopback/core';
+import { repository } from '@loopback/repository';
+import { post, param, get, requestBody } from '@loopback/rest';
+import { User, Product } from '../models';
+import { UserRepository } from '../repositories';
+import { RecommenderService } from '../services/recommender.service';
+import { inject, Setter } from '@loopback/core';
 import {
   authenticate,
   UserProfile,
   AuthenticationBindings,
 } from '@loopback/authentication';
-import {Credentials} from '../repositories/user.repository';
-import {PasswordHasher} from '../services/hash.password.bcryptjs';
-import {JWTAuthenticationService} from '../services/JWT.authentication.service';
-import {JWTAuthenticationBindings, PasswordHasherBindings} from '../keys';
-import {validateCredentials} from '../services/JWT.authentication.service';
+import { Credentials } from '../repositories/user.repository';
+import { PasswordHasher } from '../services/hash.password.bcryptjs';
+import { JWTAuthenticationService, validateCredentials } from '../services/JWT.authentication.service';
+import { JWTAuthenticationBindings, PasswordHasherBindings } from '../keys';
 import * as _ from 'lodash';
 
 // TODO(jannyHou): This should be moved to @loopback/authentication
@@ -26,9 +25,9 @@ const UserProfileSchema = {
   type: 'object',
   required: ['id'],
   properties: {
-    id: {type: 'string'},
-    email: {type: 'string'},
-    name: {type: 'string'},
+    id: { type: 'string' },
+    email: { type: 'string' },
+    name: { type: 'string' },
   },
 };
 
@@ -43,11 +42,10 @@ export class UserController {
     public passwordHahser: PasswordHasher,
     @inject(JWTAuthenticationBindings.SERVICE)
     public jwtAuthenticationService: JWTAuthenticationService,
-  ) {}
+  ) { }
 
   @post('/users')
   async create(@requestBody() user: User): Promise<User> {
-    validateCredentials(_.pick(user, ['email', 'password']));
     user.password = await this.passwordHahser.hashPassword(user.password);
 
     // Save & Return Result
@@ -72,7 +70,7 @@ export class UserController {
   })
   async findById(@param.path.string('userId') userId: string): Promise<User> {
     return this.userRepository.findById(userId, {
-      fields: {password: false},
+      fields: { password: false },
     });
   }
 
@@ -144,11 +142,11 @@ export class UserController {
   // @authenticate('jwt', {action: 'generateAccessToken'})
   async login(
     @requestBody() credentials: Credentials,
-  ): Promise<{token: string}> {
+  ): Promise<{ token: string }> {
     validateCredentials(credentials);
     const token = await this.jwtAuthenticationService.getAccessTokenForUser(
       credentials,
     );
-    return {token};
+    return { token };
   }
 }
